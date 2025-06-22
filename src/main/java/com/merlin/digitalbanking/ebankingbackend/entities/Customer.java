@@ -1,16 +1,14 @@
 package com.merlin.digitalbanking.ebankingbackend.entities;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 
 @Entity
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Data
 public class Customer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,4 +17,5 @@ public class Customer {
     private String email;
     @OneToMany(mappedBy = "customer")
     private List<BankAccount> bankAccounts;
+
 }
