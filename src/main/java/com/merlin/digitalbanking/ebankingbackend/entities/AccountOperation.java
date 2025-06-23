@@ -6,7 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Entity
 @Data
@@ -16,8 +17,8 @@ public class AccountOperation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Date operationDate;
-    private double amount;
+    private LocalDateTime operationDate;
+    private BigDecimal amount;
     @Enumerated(EnumType.STRING)
     private OperationType type;
     @ManyToOne
