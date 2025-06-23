@@ -1,6 +1,7 @@
 package com.merlin.digitalbanking.ebankingbackend;
 
-
+import com.merlin.digitalbanking.ebankingbackend.dto.BankAccountDTO;
+import com.merlin.digitalbanking.ebankingbackend.dto.CustomerDTO;
 import com.merlin.digitalbanking.ebankingbackend.entities.*;
 import com.merlin.digitalbanking.ebankingbackend.enums.AccountStatus;
 import com.merlin.digitalbanking.ebankingbackend.enums.OperationType;
@@ -17,7 +18,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
-import java.util.Date;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -34,23 +36,22 @@ public class EBankingBackendApplication {
     CommandLineRunner commandLineRunner(BankAccountService bankAccountService) {
         return args -> {
             Stream.of("Merlin","Nata","Eme").forEach(name -> {
-                Customer customer=new Customer();
-                customer.setName(name);
-                customer.setEmail(name+"@gmail.com");
+                CustomerDTO customer=new CustomerDTO(null,name, name+"@gmail.com");
                 bankAccountService.saveCustomer(customer);
             });
 
             bankAccountService.listCustomers().forEach(customer -> {
                 try {
-                    bankAccountService.saveCurrentBankAccount(Math.random()*90000, 9000, customer.getId());
-                    bankAccountService.saveSavingBankAccount(Math.random()*120000, 5.5, customer.getId());
+                    bankAccountService.saveCurrentBankAccount(BigDecimal.valueOf(Math.random()*90000), BigDecimal.valueOf(9000), customer.id());
+                    bankAccountService.saveSavingBankAccount(BigDecimal.valueOf(Math.random()*120000), BigDecimal.valueOf(5.5), customer.id());
 
-                    List<BankAccount> bankAccounts = bankAccountService.listCustomerBankAccounts(customer.getId());
+                    List<BankAccountDTO> bankAccounts = bankAccountService.listCustomerBankAccounts(customer.id());
 
-                    for (BankAccount bankAccount : bankAccounts) {
+                    for (BankAccountDTO bankAccount : bankAccounts) {
                         for (int i = 0; i <10; i++){
-                            bankAccountService.credit(bankAccount.getId(), 10000+Math.random()*120000, "Credit");
-                            bankAccountService.debit(bankAccount.getId(), 1000+Math.random()*9000, "Debit");
+
+                            bankAccountService.credit(bankAccount.id(),BigDecimal.valueOf(10000+Math.random()*120000),"Credit");
+                            bankAccountService.debit(bankAccount.id(), BigDecimal.valueOf(1000+Math.random()*9000), "Debit");
                         }
                     }
 
@@ -80,27 +81,27 @@ public class EBankingBackendApplication {
 
                 currentAccount.setId(UUID.randomUUID().toString());
                 currentAccount.setCustomer(customer);
-                currentAccount.setBalance(Math.random() * 90000);
+                currentAccount.setBalance(BigDecimal.valueOf(Math.random() * 90000));
                 currentAccount.setStatus(AccountStatus.CREATED);
-                currentAccount.setCreatedAt(new Date());
-                currentAccount.setOverDraft(9000);
+                currentAccount.setCreatedAt(LocalDateTime.now());
+                currentAccount.setOverDraft(BigDecimal.valueOf(9000));
                 bankAccountRepository.save(currentAccount);
 
                 SavingAccount savingAccount = new SavingAccount();
                 savingAccount.setId(UUID.randomUUID().toString());
                 savingAccount.setCustomer(customer);
-                savingAccount.setBalance(Math.random() * 90000);
+                savingAccount.setBalance(BigDecimal.valueOf(Math.random() * 90000));
                 savingAccount.setStatus(AccountStatus.CREATED);
-                savingAccount.setCreatedAt(new Date());
-                savingAccount.setInterestRate(5.5);
+                savingAccount.setCreatedAt(LocalDateTime.now());
+                savingAccount.setInterestRate(BigDecimal.valueOf(5.5));
                 bankAccountRepository.save(savingAccount);
             });
 
             bankAccountRepository.findAll().forEach(bankAccount -> {
                 for (int i = 0; i <10; i++){
                     AccountOperation accountOperation = new AccountOperation();
-                    accountOperation.setOperationDate(new Date());
-                    accountOperation.setAmount(Math.random() * 12000);
+                    accountOperation.setOperationDate(LocalDateTime.now());
+                    accountOperation.setAmount(BigDecimal.valueOf(Math.random() * 12000));
                     accountOperation.setType(Math.random()>0.5? OperationType.DEBIT:OperationType.CREDIT);
                     accountOperation.setBankAccount(bankAccount);
                     accountOperationRepository.save(accountOperation);

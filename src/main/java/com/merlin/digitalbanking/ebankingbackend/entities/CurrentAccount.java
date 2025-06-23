@@ -6,11 +6,13 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Entity
 @DiscriminatorValue("CA")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class CurrentAccount extends BankAccount{
-    private double overDraft;
+    private BigDecimal overDraft;
 }

@@ -6,7 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -18,12 +19,12 @@ import java.util.List;
 public abstract class BankAccount {
     @Id
     private String id;
-    private double balance;
-    private Date createdAt;
+    private BigDecimal balance;
+    private LocalDateTime createdAt;
     @Enumerated(EnumType.STRING)
     private AccountStatus status;
     @ManyToOne
     private Customer customer;
-    @OneToMany(mappedBy = "bankAccount",fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "bankAccount", cascade = CascadeType.ALL)
     private List<AccountOperation> accountOperations;
 }
