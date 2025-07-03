@@ -23,6 +23,7 @@ import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,7 +31,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class BankAccountServiceImpl implements BankAccountService {
-
+    private static Logger logger = Logger.getLogger(BankAccountServiceImpl.class.getName());
     private final CustomerRepository customerRepository;
     private final BankAccountRepository bankAccountRepository;
     private final AccountOperationRepository accountOperationRepository;
@@ -100,6 +101,21 @@ public class BankAccountServiceImpl implements BankAccountService {
     }
 
     @Override
+    public List<BankAccountDTO> bankAccountList(){
+        List<BankAccount> bankAccounts = bankAccountRepository.findAll();
+        List<BankAccountDTO> bankAccountDTOS = bankAccounts.stream().map(bankAccount -> {
+            if (bankAccount instanceof SavingAccount) {
+                SavingAccount savingAccount = (SavingAccount) bankAccount;
+                return bankAccountMapper.fromSavingBankAccount(savingAccount);
+            } else {
+                CurrentAccount currentAccount = (CurrentAccount) bankAccount;
+                return bankAccountMapper.fromCurrentBankAccount(currentAccount);
+            }
+        }).collect(Collectors.toList());
+        return bankAccountDTOS;
+    }
+
+    @Override
     public BankAccountDTO getBankAccount(String accountId) throws BankAccountNotFoundException{
         log.info("Getting bank account: {}", accountId);
 
@@ -111,18 +127,21 @@ public class BankAccountServiceImpl implements BankAccountService {
 
     @Override
     public void debit(String accountId, BigDecimal amount, String description) throws BankAccountNotFoundException, BalanceNotSufficientException {
+        logger.info("Debit amount : "+amount+", from "+accountId);
         log.info("Debit amount : {}", amount);
         saveOperation(OperationType.DEBIT, accountId, bankAccountMapper.roundAmount(amount), description);
     }
 
     @Override
     public void credit(String accountId, BigDecimal amount, String description) throws BankAccountNotFoundException, BalanceNotSufficientException{
+        logger.info("Credit amount : "+amount+", to "+accountId);
         log.info("Credit amount : {}", amount);
         saveOperation(OperationType.CREDIT, accountId, bankAccountMapper.roundAmount(amount), description);
     }
 
     @Override
     public void transfer(String fromAccountId, String toAccountId, BigDecimal amount, String description) throws BankAccountNotFoundException, BalanceNotSufficientException {
+        logger.info("Transfer amount : "+amount+", from "+fromAccountId+", to "+toAccountId);
         log.info("Transfer amount : {} from {}, to {}", amount, fromAccountId, toAccountId);
         debit(fromAccountId, amount, description);
         credit(toAccountId, amount, description);
@@ -173,6 +192,13 @@ public class BankAccountServiceImpl implements BankAccountService {
                 size);
     }
 
+    @Override
+    public List<CustomerDTO> searchCustomers(String keyword) {
+        List<Customer> customers=customerRepository.searchCustomer(keyword);
+        return customers.stream().map(bankAccountMapper::fromCustomer)
+                .toList();
+    }
+
     private Customer findCustomerById(Long customerId) throws CustomerNotFoundException {
         return customerRepository.findById(customerId)
                 .orElseThrow(() -> {
@@ -185,7 +211,7 @@ public class BankAccountServiceImpl implements BankAccountService {
         log.info("Get bank account : {}", bankAccountId);
         return bankAccountRepository.findById(bankAccountId).orElseThrow(() -> {
             log.error("Bank Account not found, {}", bankAccountId);
-            return new BankAccountNotFoundException("Bank Account not found");
+            return new BankAccountNotFoundException("Bank Account "+bankAccountId+" not found");
         });
     }
 

@@ -15,6 +15,7 @@ public interface BankAccountService {
     CurrentBankAccountDTO saveCurrentBankAccount(BigDecimal initialBalance, BigDecimal overDraft, Long customerId) throws CustomerNotFoundException;
     SavingBankAccountDTO saveSavingBankAccount(BigDecimal initialBalance, BigDecimal interestRate, Long customerId) throws CustomerNotFoundException;
     List<CustomerDTO> listCustomers();
+    List<BankAccountDTO> bankAccountList();
     BankAccountDTO getBankAccount(String accountId) throws BankAccountNotFoundException;
     void debit(String accountId, BigDecimal amount, String description) throws BankAccountNotFoundException, BalanceNotSufficientException;
     void credit(String accountId, BigDecimal amount, String description) throws BankAccountNotFoundException, BalanceNotSufficientException;
@@ -23,4 +24,6 @@ public interface BankAccountService {
     CustomerDTO getCustomer(Long customerId) throws CustomerNotFoundException;
     List<AccountOperationDTO> accountHistory(String accoundId);
     AccountHistoryDTO getPageableAccountHistory(String accountNumber, int page, int size) throws BankAccountNotFoundException;
+
+    List<CustomerDTO> searchCustomers(String keyword);
 }

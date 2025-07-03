@@ -20,7 +20,7 @@ public class BankAccountRestController {
         return bankAccountService.getBankAccount(accountNumber);
     }
 
-    @GetMapping("/accounts/customer/{customerId}")
+    @GetMapping("/customers/{customerId}/accounts")
     public List<BankAccountDTO> getCustomerAccounts(@PathVariable Long customerId) throws CustomerNotFoundException {
         return bankAccountService.listCustomerBankAccounts(customerId);
     }
@@ -38,17 +38,17 @@ public class BankAccountRestController {
         return bankAccountService.getPageableAccountHistory(accountNumber, page, size);
     }
 
-    @PostMapping("/account/credit")
+    @PostMapping("/accounts/credit")
     public void credit(@RequestBody OperationDTO operationDTO) throws BankAccountNotFoundException, BalanceNotSufficientException {
         bankAccountService.credit(operationDTO.accountId(), operationDTO.amount(), operationDTO.description());
     }
 
-    @PostMapping("/account/debit")
+    @PostMapping("/accounts/debit")
     public void debit(@RequestBody OperationDTO operationDTO) throws BankAccountNotFoundException, BalanceNotSufficientException {
         bankAccountService.debit(operationDTO.accountId(), operationDTO.amount(), operationDTO.description());
     }
 
-    @PostMapping("/account/transfer")
+    @PostMapping("/accounts/transfer")
     public void transfert(@RequestBody TransferDTO transferDTO) throws BankAccountNotFoundException, BalanceNotSufficientException {
         bankAccountService.transfer(transferDTO.fromAccountId(), transferDTO.toAccountId(), transferDTO.amount(), transferDTO.description());
     }
