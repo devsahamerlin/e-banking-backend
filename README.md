@@ -7,6 +7,11 @@
 - Table Per Class: Allow to have 2 tables (`current-account` table + `over-draft` property and `saving-account` table + `interest-rate` property)
 - Joined Table: Allow to have 3 tables (`account` table with common properties, `current-account` table with `over-draft` property and `saving-account` with `interest-rate` property )
 
+### Tech Stack:
+- Java Spring Boot
+- Angular
+- Spring Security
+
 ### Database
 ![service-layer.png](images/service-layer.png)
 
@@ -19,7 +24,6 @@ mvn spring-boot:run
 #### Get customer Banking Accounts
 
 ![customer-account.png](images/customer-account.png)
-
 
 #### Credit Account
 ![credit-account.png](images/credit-account.png)
