@@ -1,21 +1,19 @@
 package com.merlin.digitalbanking.ebankingbackend.security;
 
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
-import org.slf4j.Logger;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
@@ -23,7 +21,6 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -35,38 +32,18 @@ import java.security.SecureRandom;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
+@RequiredArgsConstructor
+@Slf4j
 public class SecurityConfig {
-    private static final Logger log = org.slf4j.LoggerFactory.getLogger(SecurityConfig.class);
+
+    private final CustomUserDetailsService customUserDetailsService;
 
     @Value("${jwt.secret}")
     private String secretKey;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-    @Bean
-    @Primary
-    public InMemoryUserDetailsManager inMemoryUserDetailsManager() {
-        PasswordEncoder encoder = passwordEncoder();
-        return new InMemoryUserDetailsManager(
-                User.withUsername("user1@gmail.com").password(encoder.encode("12345678")).roles("USER").build(),
-                User.withUsername("admin@gmail.com").password(encoder.encode("12345678")).roles("USER","ADMIN").build()
-        );
-    }
-
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        return http
-                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .csrf(csrf -> csrf.disable())
-                .cors(Customizer.withDefaults())
-                .authorizeHttpRequests(ar -> ar
-                        .requestMatchers("/h2-console/**","/auth/login/**", "/swagger-ui/**", "/v3/**").permitAll())
-                .authorizeHttpRequests(ar->ar.anyRequest().authenticated())
-                .oauth2ResourceServer(oauth -> oauth.jwt(Customizer.withDefaults()))
-                .build();
+        return new BCryptPasswordEncoder(8);
     }
 
     @Bean
@@ -81,13 +58,17 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(UserDetailsService userDetailsService) {
+    public DaoAuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+        authProvider.setUserDetailsService(customUserDetailsService);
+        authProvider.setPasswordEncoder(passwordEncoder());
+        return authProvider;
+    }
 
-        DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
-        authenticationProvider.setPasswordEncoder(passwordEncoder());
-        authenticationProvider.setUserDetailsService(userDetailsService);
-
-        return new ProviderManager(authenticationProvider);
+    @Bean
+    public AuthenticationManager authenticationManager(
+            AuthenticationConfiguration authConfig) throws Exception {
+        return authConfig.getAuthenticationManager();
     }
 
     @Bean
@@ -101,6 +82,48 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", corsConfiguration);
         return source;
     }
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        return http
+
+                .csrf(csrf -> csrf.disable())
+                .cors(Customizer.withDefaults())
+                //.cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(
+                                "/h2-console/**",
+                                "/auth/**",
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**",
+                                "/actuator/health"
+                        ).permitAll()
+                        .requestMatchers("/api/admin/**").hasAnyRole("ADMIN", "MANAGER")
+                        .requestMatchers("/api/users/**").hasAnyRole("USER", "ADMIN")
+                        .anyRequest().authenticated())
+
+                .oauth2ResourceServer(oauth2 -> oauth2
+                        .jwt(jwt -> jwt.decoder(jwtDecoder())))
+
+                .authenticationProvider(authenticationProvider())
+                .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
+                .build();
+    }
+
+
+//    @Bean
+//    @Primary
+//    public InMemoryUserDetailsManager inMemoryUserDetailsManager() {
+//        PasswordEncoder encoder = passwordEncoder();
+//        return new InMemoryUserDetailsManager(
+//                User.withUsername("user1@gmail.com").password(encoder.encode("12345678")).roles("USER").build(),
+//                User.withUsername("admin@gmail.com").password(encoder.encode("12345678")).roles("USER","ADMIN").build()
+//        );
+//    }
+
 
     private static String generateSecretKey(int length) {
 

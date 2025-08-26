@@ -1,5 +1,5 @@
 package com.merlin.digitalbanking.ebankingbackend.enums;
 
 public enum AccountStatus {
-    CREATED, ACTIVATED, SUSPENDED, BLOCKED
+    CREATED, ACTIVATED, SUSPENDED, BLOCKED, CLOSED
 }

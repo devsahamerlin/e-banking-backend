@@ -17,6 +17,12 @@ public interface BankAccountMapper {
     CurrentBankAccountDTO fromCurrentBankAccount(CurrentAccount currentAccount);
     CurrentAccount fromCurrentBankAccountDTO(CurrentBankAccountDTO currentBankAccount);
     AccountOperationDTO fromAccountOperation(AccountOperation accountOperation);
+    UserDTO fromUser(User user);
+    User fromUserDTO(UserDTO userDTO);
+
+    default BankAccountDTO fromBankAccount(BankAccount bankAccount) {
+        return bankAccountToBankAccountDTO(bankAccount);
+    }
 
     default AccountHistoryDTO toAccountHistoryDTO(String accountId,
                                                   BigDecimal balance,
@@ -43,7 +49,8 @@ public interface BankAccountMapper {
                     current.getStatus(),
                     fromCustomer(current.getCustomer()),
                     current.getOverDraft(),
-                    current.getClass().getSimpleName()
+                    current.getClass().getSimpleName(),
+                    fromUser(bankAccount.getCreatedBy())
             );
         } else if (bankAccount instanceof SavingAccount saving) {
             return new SavingBankAccountDTO(
@@ -53,7 +60,8 @@ public interface BankAccountMapper {
                     saving.getStatus(),
                     fromCustomer(saving.getCustomer()),
                     saving.getInterestRate(),
-                    saving.getClass().getSimpleName()
+                    saving.getClass().getSimpleName(),
+                    fromUser(bankAccount.getCreatedBy())
             );
         } else {
             throw new IllegalStateException("Unknown bank account type: " + bankAccount.getClass().getSimpleName());

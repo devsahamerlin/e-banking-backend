@@ -24,4 +24,8 @@ public class AccountOperation {
     @ManyToOne
     private BankAccount bankAccount;
     private String description;
+
+    @ManyToOne
+    @JoinColumn(name = "performed_by")
+    private User performedBy;
 }
