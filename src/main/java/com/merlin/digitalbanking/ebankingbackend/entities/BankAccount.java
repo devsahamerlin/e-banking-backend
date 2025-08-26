@@ -28,4 +28,21 @@ public abstract class BankAccount {
     //@OneToMany(mappedBy = "bankAccount", cascade = CascadeType.ALL)
     @OneToMany(mappedBy = "bankAccount")
     private List<AccountOperation> accountOperations;
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
+    @ManyToOne
+    @JoinColumn(name = "created_by")
+    private User createdBy;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
 }

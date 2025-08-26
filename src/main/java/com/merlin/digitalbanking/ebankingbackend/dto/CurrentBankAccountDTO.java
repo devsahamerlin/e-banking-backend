@@ -12,4 +12,6 @@ public record CurrentBankAccountDTO(
         AccountStatus status,
         CustomerDTO customerDTO,
         BigDecimal overdraft,
-        String type) implements BankAccountDTO{}
+        String type,
+        UserDTO createdBy
+) implements BankAccountDTO{}

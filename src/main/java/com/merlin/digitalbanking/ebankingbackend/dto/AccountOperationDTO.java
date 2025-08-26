@@ -10,4 +10,6 @@ public record AccountOperationDTO (
         LocalDateTime operationDate,
         BigDecimal amount,
         OperationType type,
-        String description){}
+        String description,
+        String accountId,
+        UserDTO performedBy){}

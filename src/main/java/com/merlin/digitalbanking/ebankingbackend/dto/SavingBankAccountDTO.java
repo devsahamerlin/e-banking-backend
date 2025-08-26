@@ -12,4 +12,5 @@ public record SavingBankAccountDTO (
         AccountStatus status,
         CustomerDTO customerDTO,
         BigDecimal interestRate,
-        String type) implements BankAccountDTO{}
+        String type,
+        UserDTO createdBy) implements BankAccountDTO{}
