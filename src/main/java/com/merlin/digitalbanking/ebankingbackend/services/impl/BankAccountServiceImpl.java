@@ -109,22 +109,22 @@ public class BankAccountServiceImpl implements BankAccountService {
     }
 
     @Override
-    public void debit(String accountId, BigDecimal amount, String description) throws BankAccountNotFoundException, BalanceNotSufficientException, AccountStatusException {
+    public void debit(String accountId, BigDecimal amount, String description, LocalDateTime dateTime) throws BankAccountNotFoundException, BalanceNotSufficientException, AccountStatusException {
         log.info("Debit amount : {}, from {}", amount, accountId);
-        saveOperation(OperationType.DEBIT, accountId, bankAccountMapper.roundAmount(amount), description);
+        saveOperation(OperationType.DEBIT, accountId, bankAccountMapper.roundAmount(amount), description, dateTime);
     }
 
     @Override
-    public void credit(String accountId, BigDecimal amount, String description) throws BankAccountNotFoundException, BalanceNotSufficientException, AccountStatusException {
+    public void credit(String accountId, BigDecimal amount, String description,  LocalDateTime dateTime) throws BankAccountNotFoundException, BalanceNotSufficientException, AccountStatusException {
         log.info("Credit amount : {}, to {}", amount, accountId);
-        saveOperation(OperationType.CREDIT, accountId, bankAccountMapper.roundAmount(amount), description);
+        saveOperation(OperationType.CREDIT, accountId, bankAccountMapper.roundAmount(amount), description, dateTime);
     }
 
     @Override
-    public void transfer(String fromAccountId, String toAccountId, BigDecimal amount, String description) throws BankAccountNotFoundException, BalanceNotSufficientException, AccountStatusException {
+    public void transfer(String fromAccountId, String toAccountId, BigDecimal amount, String description, LocalDateTime dateTime) throws BankAccountNotFoundException, BalanceNotSufficientException, AccountStatusException {
         log.info("Transfer amount : {} from {}, to {}", amount, fromAccountId, toAccountId);
-        debit(fromAccountId, amount, description);
-        credit(toAccountId, amount, description);
+        debit(fromAccountId, amount, description, dateTime);
+        credit(toAccountId, amount, description, dateTime);
     }
 
     @Override
@@ -261,7 +261,7 @@ public class BankAccountServiceImpl implements BankAccountService {
     }
 
 
-    private void saveOperation(OperationType operationType, String accountId, BigDecimal amount, String description) throws BalanceNotSufficientException,
+    private void saveOperation(OperationType operationType, String accountId, BigDecimal amount, String description, LocalDateTime dateTime) throws BalanceNotSufficientException,
             BankAccountNotFoundException, AccountStatusException {
 
         BankAccount bankAccount = findBankAccountById(accountId);
@@ -284,7 +284,7 @@ public class BankAccountServiceImpl implements BankAccountService {
         accountOperation.setType(operationType);
         accountOperation.setAmount(amount);
         accountOperation.setDescription(description);
-        accountOperation.setOperationDate(LocalDateTime.now());
+        accountOperation.setOperationDate(dateTime);
         accountOperation.setBankAccount(bankAccount);
         accountOperation.setPerformedBy(bankAccountMapper.fromUserDTO(currentUser));
 

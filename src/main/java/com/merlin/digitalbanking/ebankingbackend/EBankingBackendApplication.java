@@ -31,7 +31,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -46,7 +48,7 @@ public class EBankingBackendApplication {
 
     @Bean
     CommandLineRunner commandLineRunner(BankAccountService bankAccountService, UserRepository userRepository,
-                                        PasswordEncoder passwordEncoder, BankAccountMapper bankAccountMapper, UserService userService) {
+                                        PasswordEncoder passwordEncoder, UserService userService) {
         return args -> {
 
             User admin = new User();
@@ -100,10 +102,18 @@ public class EBankingBackendApplication {
                     List<BankAccountDTO> bankAccounts = bankAccountService.listCustomerBankAccounts(customer.id());
 
                     for (BankAccountDTO bankAccount : bankAccounts) {
-                        for (int i = 0; i <10; i++){
+                        for (int i = 0; i < 10; i++) {
+                            int year = 2022 + (int) (Math.random() * 4);
+                            int month = 1 + (int) (Math.random() * 12);
+                            int day = 1 + (int) (Math.random() * 29);
 
-                            bankAccountService.credit(bankAccount.id(),BigDecimal.valueOf(10000+Math.random()*120000),"Credit");
-                            bankAccountService.debit(bankAccount.id(), BigDecimal.valueOf(1000+Math.random()*9000), "Debit");
+                            bankAccountService.credit(bankAccount.id(), BigDecimal.valueOf(10000 + Math.random() * 120000), "Credit", LocalDate.of(year, month, day).atTime(LocalTime.now()));
+
+                            year = 2022 + (int) (Math.random() * 4);
+                            month = 1 + (int) (Math.random() * 12);
+                            day = 1 + (int) (Math.random() * 29);
+
+                            bankAccountService.debit(bankAccount.id(), BigDecimal.valueOf(1000 + Math.random() * 9000), "Debit", LocalDate.of(year, month, day).atTime(LocalTime.now()));
                         }
                     }
 
