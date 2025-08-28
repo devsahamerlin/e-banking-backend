@@ -1,6 +1,7 @@
 package com.merlin.digitalbanking.ebankingbackend.repositories;
 
 import com.merlin.digitalbanking.ebankingbackend.entities.BankAccount;
+import com.merlin.digitalbanking.ebankingbackend.entities.Customer;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import org.springframework.data.jpa.repository.Query;
@@ -16,4 +17,6 @@ public interface BankAccountRepository extends JpaRepository<BankAccount, String
 
     @Query("SELECT ba FROM BankAccount ba WHERE ba.id LIKE %:keyword% OR ba.customer.name LIKE %:keyword%")
     List<BankAccount> searchAccounts(@Param("keyword") String keyword);
+
+    List<BankAccount> findByCustomer(Customer customer);
 }

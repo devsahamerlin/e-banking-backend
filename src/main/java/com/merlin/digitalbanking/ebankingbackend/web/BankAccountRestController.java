@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -48,21 +49,21 @@ public class BankAccountRestController {
     @PostMapping("/accounts/credit")
     @PreAuthorize("hasAuthority('SCOPE_ROLE_USER') or hasAuthority('SCOPE_ROLE_ADMIN') or hasAuthority('SCOPE_ROLE_MANAGER')")
     public ResponseEntity<Void> credit(@RequestBody OperationDTO operationDTO) throws BankAccountNotFoundException, BalanceNotSufficientException, AccountStatusException {
-        bankAccountService.credit(operationDTO.accountId(), operationDTO.amount(), operationDTO.description());
+        bankAccountService.credit(operationDTO.accountId(), operationDTO.amount(), operationDTO.description(), LocalDateTime.now());
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/accounts/debit")
     @PreAuthorize("hasAuthority('SCOPE_ROLE_USER') or hasAuthority('SCOPE_ROLE_ADMIN') or hasAuthority('SCOPE_ROLE_MANAGER')")
     public ResponseEntity<Void> debit(@RequestBody OperationDTO operationDTO) throws BankAccountNotFoundException, BalanceNotSufficientException, AccountStatusException {
-        bankAccountService.debit(operationDTO.accountId(), operationDTO.amount(), operationDTO.description());
+        bankAccountService.debit(operationDTO.accountId(), operationDTO.amount(), operationDTO.description(), LocalDateTime.now());
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/accounts/transfer")
     @PreAuthorize("hasAuthority('SCOPE_ROLE_USER') or hasAuthority('SCOPE_ROLE_ADMIN') or hasAuthority('SCOPE_ROLE_MANAGER')")
     public ResponseEntity<Void> transfer(@RequestBody TransferDTO transferDTO) throws BankAccountNotFoundException, BalanceNotSufficientException, AccountStatusException {
-        bankAccountService.transfer(transferDTO.fromAccountId(), transferDTO.toAccountId(), transferDTO.amount(), transferDTO.description());
+        bankAccountService.transfer(transferDTO.fromAccountId(), transferDTO.toAccountId(), transferDTO.amount(), transferDTO.description(), LocalDateTime.now());
         return ResponseEntity.ok().build();
     }
 }

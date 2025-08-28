@@ -1,0 +1,37 @@
+services:
+  redis-server:
+    container_name: redis-server
+    hostname: redis-server
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./volumes/redis_data:/data
+    networks:
+      - ${GLOBAL_NETWORK}
+
+  redis-commander-ui:
+    container_name: redis-commander-ui
+    hostname: redis-commander-ui
+    # Using Redis Insight instead - it has better ARM64 support
+    image: rediscommander/redis-commander:latest
+    restart: unless-stopped
+    platform: linux/amd64
+    ports:
+      - "8082:8001"
+    environment:
+      - REDIS_HOSTS=local:redis-server:6379
+      - HTTP_USER=${REDIS_UI_USER}
+      - HTTP_PASSWORD=${REDIS_UI_PASSWORD}
+    volumes:
+      - redis_insight_data:/db
+    depends_on:
+      - redis-server
+    networks:
+      - ${GLOBAL_NETWORK}
+
+volumes:
+  redis_insight_data: {}  # Added volume for Redis Insight's persistent data
+
+# docker-compose -f common.yml -f redis.yml up -d

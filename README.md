@@ -15,9 +15,36 @@ L'application de gestion de comptes bancaires est une solution complète dévelo
 - Angular
 - Spring Security
 
+### Start redis server first before running the application
+```shell
+docker-compose -f common.yml -f redis.yml up -d
+```
+
+![dashboard-postman.png](images%2Fdashboard-postman.png)
+
 ### Contrôleurs principaux
 
 L'API est structurée autour de cinq contrôleurs principaux qui gèrent les différents aspects métier de l'application.
+
+#### Contrôleur de tableau de bord (dashboard-controller)
+
+Le contrôleur de tableau de bord offre une interface pour la supervision et la prise de décision.
+
+##### Endpoints de vue d'ensemble et statistiques
+
+- **GET /dashboard/overview** : Fournit une synthèse globale de l'état du système bancaire avec métriques essentielles
+- **GET /dashboard/monthly-stats** : Génère des statistiques mensuelles configurables sur une période définie (défaut 12 mois)
+- **GET /dashboard/account-types** : Analyse la répartition des types de comptes avec visualisation graphique
+- **GET /dashboard/top-customers** : Identifie les clients les plus actifs avec classement paramétrable
+
+##### Endpoints d'administration avancée
+
+- **GET /dashboard/alerts** : Système d'alertes centralisé pour la surveillance opérationnelle
+- **GET /dashboard/risk-analysis** : Module d'analyse des risques financiers et opérationnels
+- **GET /dashboard/performance** : Métriques de performance système et applicative
+- **GET /dashboard/complete** : Dashboard administrateur complet avec toutes les données consolidées
+
+![dashboard-swagger.png](images%2Fdashboard-swagger.png)
 
 #### Contrôleur d'administration des comptes bancaires (bank-account-admin-controller)
 

@@ -3,7 +3,6 @@ package com.merlin.digitalbanking.ebankingbackend.web;
 import com.merlin.digitalbanking.ebankingbackend.dto.AccountOperationDTO;
 import com.merlin.digitalbanking.ebankingbackend.dto.BankAccountDTO;
 import com.merlin.digitalbanking.ebankingbackend.dto.CreateAccountDTO;
-import com.merlin.digitalbanking.ebankingbackend.dto.CustomerDTO;
 import com.merlin.digitalbanking.ebankingbackend.enums.AccountStatus;
 import com.merlin.digitalbanking.ebankingbackend.exceptions.BankAccountNotFoundException;
 import com.merlin.digitalbanking.ebankingbackend.exceptions.CustomerNotFoundException;
@@ -18,7 +17,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/admin")
 @RequiredArgsConstructor
-public class BankAccountAdminController {
+public class BankAccountAdminRestController {
 
     private final BankAccountService bankAccountService;
 
